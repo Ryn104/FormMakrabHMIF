@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Makrab Teknik Informatika</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="images/logoHMIF.png" type="image/png">
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+    <!-- Background Decoration -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="relative z-10 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-100 text-white p-2 rounded-xl shadow-lg shadow-blue-500/30">
+                    <img src="image/logo.png" alt="" class="size-8">
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white">MAKRAB IF</h1>
+                    <p class="text-xs text-slate-400">Teknik Informatika</p>
+                </div>
+            </div>
+            <div id="userInfo" class="hidden flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p id="navUserNama" class="text-sm font-semibold text-slate-200"></p>
+                    <p id="navUserNim" class="text-xs text-blue-400 font-mono"></p>
+                </div>
+                <button onclick="logout()" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition" title="Keluar">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="relative z-10 max-w-xl w-full mx-auto p-4 my-auto">
+        
+        <!-- SECTION 1: LOGIN CARD -->
+        <div id="loginCard" class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-sm transition-all duration-300">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3 text-blue-400">
+                    <i class="fa-solid fa-user-lock text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Verifikasi Mahasiswa</h2>
+                <p class="text-sm text-slate-400 mt-1">Masukkan NIM & Nama Lengkap untuk masuk</p>
+            </div>
+
+            <!-- Login Alert -->
+            <div id="loginAlert" class="hidden mb-4 p-3 rounded-lg text-sm flex items-center gap-2"></div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">NIM (Nomor Induk Mahasiswa)</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-id-card absolute left-3 top-3.5 text-slate-500"></i>
+                        <input type="text" id="loginNim" required placeholder="Contoh: 230101001" 
+                            class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-slate-200 placeholder:text-slate-600 font-mono">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Nama Lengkap</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3 top-3.5 text-slate-500"></i>
+                        <input type="text" id="loginNama" required placeholder="Masukkan nama sesuai krs" 
+                            class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-slate-200 placeholder:text-slate-600">
+                    </div>
+                </div>
+
+                <button type="submit" id="btnLogin" 
+                    class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 mt-2">
+                    <span>Masuk</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- SECTION 2: FORM PENDAFTARAN -->
+        <div id="formCard" class="hidden bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-sm transition-all duration-300">
+            
+            <!-- Banner Jika Sudah Mengisi -->
+            <div id="alreadySubmittedBanner" class="hidden mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-3">
+                <i class="fa-solid fa-circle-info text-amber-400 text-xl mt-0.5"></i>
+                <div>
+                    <h4 class="font-semibold text-amber-300">Anda Sudah Mengisi Formulir</h4>
+                    <p class="text-xs text-slate-300 mt-0.5">Data pendaftaran Anda telah tercatat sebelumnya di database. Formulir ini terkunci dan tidak dapat diisi ulang.</p>
+                </div>
+            </div>
+
+            <div class="border-b border-slate-700/60 pb-5 mb-5">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-blue-400"></i>
+                    Form Konfirmasi Makrab
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">Lengkapi form keberangkatan di bawah ini.</p>
+            </div>
+
+            <!-- Form Alert -->
+            <div id="formAlert" class="hidden mb-4 p-3 rounded-lg text-sm flex items-center gap-2"></div>
+
+            <form id="makrabForm" onsubmit="handleFormSubmit(event)" class="space-y-5">
+                
+                <!-- Data Otomatis (Disabled) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">NIM Mahasiswa</label>
+                        <input type="text" id="formNim" readonly 
+                            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 font-mono text-sm cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Nama Lengkap</label>
+                        <input type="text" id="formNama" readonly 
+                            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 text-sm cursor-not-allowed">
+                    </div>
+                </div>
+
+                <fieldset id="formFields" class="space-y-5">
+                    
+                    <!-- INPUT NOMOR TELEPON / WHATSAPP (BARU) -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-200 mb-1">Nomor WhatsApp / Telepon <span class="text-rose-500">*</span></label>
+                        <div class="relative">
+                            <i class="fa-brands fa-whatsapp absolute left-3.5 top-3.5 text-emerald-500 text-lg"></i>
+                            <input type="tel" id="telepon" required placeholder="Contoh: 081234567890" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-slate-200 text-sm placeholder:text-slate-600 font-mono">
+                        </div>
+                    </div>
+
+                    <!-- Status Kehadiran -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-200 mb-2">Apakah Anda Akan Ikut Makrab? <span class="text-rose-500">*</span></label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500">
+                                <input type="radio" name="kehadiran" value="Ikut" required onchange="toggleAlasan(false)" class="text-blue-600 focus:ring-0">
+                                <span class="ml-2 text-sm font-medium text-slate-200">Ikut</span>
+                            </label>
+                            <label class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-rose-600/20 has-[:checked]:border-rose-500">
+                                <input type="radio" name="kehadiran" value="Tidak Ikut" required onchange="toggleAlasan(true)" class="text-rose-600 focus:ring-0">
+                                <span class="ml-2 text-sm font-medium text-slate-200">Tidak Ikut</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Input Alasan (Sembunyi/Muncul) -->
+                    <div id="alasanContainer" class="hidden">
+                        <label class="block text-sm font-medium text-slate-200 mb-1">Alasan Tidak Ikut <span class="text-rose-500">*</span></label>
+                        <textarea id="alasan" rows="3" placeholder="Tuliskan alasan Anda tidak bisa mengikuti acara..." 
+                            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-slate-200 text-sm placeholder:text-slate-600"></textarea>
+                    </div>
+
+                    <!-- Membawa Motor -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-200 mb-2">Apakah Membawa Motor? <span class="text-rose-500">*</span></label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500">
+                                <input type="radio" name="membawaMotor" value="Ya" required class="text-blue-600 focus:ring-0">
+                                <span class="ml-2 text-sm font-medium text-slate-200">Ya, Membawa</span>
+                            </label>
+                            <label class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500">
+                                <input type="radio" name="membawaMotor" value="Tidak" required class="text-blue-600 focus:ring-0">
+                                <span class="ml-2 text-sm font-medium text-slate-200">Tidak</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Riwayat Penyakit -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-200 mb-1">Riwayat Penyakit / Alergi</label>
+                        <input type="text" id="riwayatPenyakit" placeholder="Isi 'Tidak Ada' jika tidak memiliki riwayat" 
+                            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-slate-200 text-sm placeholder:text-slate-600">
+                    </div>
+                </fieldset>
+
+                <!-- Submit Button -->
+                <button type="submit" id="btnSubmitForm" 
+                    class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane text-sm"></i>
+                    <span>Kirim Pendaftaran</span>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-slate-800 bg-slate-900/50 py-4 text-center text-xs text-slate-500">
+        &copy; Himpunan Mahasiswa Teknik Informatika. All rights reserved.
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtIDThhPfjSQkJHiJJNKVVTGvMARuyCrKURU24akN9Py5IBtFfO3cXZlcF-JwZiI5f/exec";
+
+        let currentUser = null;
+
+        // Tampilkan Alert Pesan
+        function showAlert(elementId, message, type = 'error') {
+            const alertBox = document.getElementById(elementId);
+            alertBox.classList.remove('hidden', 'bg-rose-500/10', 'text-rose-400', 'border-rose-500/20', 'bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/20');
+            
+            if (type === 'error') {
+                alertBox.classList.add('bg-rose-500/10', 'text-rose-400', 'border', 'border-rose-500/20');
+                alertBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> <span>${message}</span>`;
+            } else {
+                alertBox.classList.add('bg-emerald-500/10', 'text-emerald-400', 'border', 'border-emerald-500/20');
+                alertBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${message}</span>`;
+            }
+        }
+
+        function hideAlert(elementId) {
+            document.getElementById(elementId).classList.add('hidden');
+        }
+
+        // Toggle Alasan berdasarkan Status Kehadiran
+        function toggleAlasan(isTidakIkut) {
+            const container = document.getElementById('alasanContainer');
+            const textarea = document.getElementById('alasan');
+            if (isTidakIkut) {
+                container.classList.remove('hidden');
+                textarea.required = true;
+            } else {
+                container.classList.add('hidden');
+                textarea.required = false;
+                textarea.value = '';
+            }
+        }
+
+        // Ubah nama menjadi Capitalize Each Word
+        function capitalizeNama(nama) {
+            return nama
+                .trim()
+                .replace(/\s+/g, ' ')
+                .toLowerCase()
+                .replace(/(^|\s)[a-zà-ÿ]/g, huruf => huruf.toUpperCase());
+        }
+
+        // Handle Login
+        async function handleLogin(e) {
+            e.preventDefault();
+            hideAlert('loginAlert');
+
+            const nim = document.getElementById('loginNim').value.trim();
+            const nama = capitalizeNama(document.getElementById('loginNama').value);
+            document.getElementById('loginNama').value = nama;
+
+            const btnLogin = document.getElementById('btnLogin');
+
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-sm"></i> <span>Memeriksa...</span>`;
+
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=login&nim=${encodeURIComponent(nim)}&nama=${encodeURIComponent(nama)}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    currentUser = { nim, nama };
+                    
+                    // Set Data Form Otomatis
+                    document.getElementById('formNim').value = nim;
+                    document.getElementById('formNama').value = nama;
+                    document.getElementById('navUserNim').innerText = nim;
+                    document.getElementById('navUserNama').innerText = nama;
+
+                    // Berpindah ke Tampilan Form
+                    document.getElementById('loginCard').classList.add('hidden');
+                    document.getElementById('formCard').classList.remove('hidden');
+                    document.getElementById('userInfo').classList.remove('hidden');
+
+                    // CEK JIKA MAHASISWA SUDAH PERNAH MENGISI
+                    if (result.alreadySubmitted) {
+                        lockForm();
+                    }
+
+                } else {
+                    showAlert('loginAlert', result.message, 'error');
+                }
+            } catch (err) {
+                showAlert('loginAlert', 'Gagal terhubung ke server database. Periksa koneksi Anda.', 'error');
+            } finally {
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = `<span>Masuk</span> <i class="fa-solid fa-arrow-right text-sm"></i>`;
+            }
+        }
+
+        // Kunci Form Jika Sudah Mengisi
+        function lockForm() {
+            document.getElementById('alreadySubmittedBanner').classList.remove('hidden');
+            
+            // Disable seluruh fieldset
+            const formFields = document.getElementById('formFields');
+            const inputs = formFields.querySelectorAll('input, textarea');
+            inputs.forEach(input => input.disabled = true);
+
+            // Ubah tombol submit
+            const btnSubmit = document.getElementById('btnSubmitForm');
+            btnSubmit.disabled = true;
+            btnSubmit.className = "w-full py-3 bg-slate-700 text-slate-400 font-semibold rounded-xl cursor-not-allowed flex items-center justify-center gap-2";
+            btnSubmit.innerHTML = `<i class="fa-solid fa-lock text-sm"></i> <span>Sudah Mengisi Form</span>`;
+        }
+
+        // Handle Submit Pendaftaran
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            hideAlert('formAlert');
+
+            const telepon = document.getElementById('telepon').value.trim();
+            const kehadiran = document.querySelector('input[name="kehadiran"]:checked')?.value;
+            const alasan = document.getElementById('alasan').value.trim();
+            const membawaMotor = document.querySelector('input[name="membawaMotor"]:checked')?.value;
+            const riwayatPenyakit = document.getElementById('riwayatPenyakit').value.trim();
+            const btnSubmit = document.getElementById('btnSubmitForm');
+
+            // Validasi Nomor Telepon
+            if (!/^[0-9+\s-]{9,15}$/.test(telepon)) {
+                showAlert('formAlert', 'Masukkan nomor WhatsApp/Telepon yang valid!', 'error');
+                return;
+            }
+
+            if (kehadiran === 'Tidak Ikut' && !alasan) {
+                showAlert('formAlert', 'Wajib memasukkan alasan jika tidak dapat hadir!', 'error');
+                return;
+            }
+
+            const payload = {
+                nim: currentUser.nim,
+                nama: currentUser.nama,
+                telepon: telepon,
+                kehadiran: kehadiran,
+                alasan: kehadiran === 'Tidak Ikut' ? alasan : '-',
+                membawaMotor: membawaMotor,
+                riwayatPenyakit: riwayatPenyakit || 'Tidak Ada'
+            };
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-sm"></i> <span>Mengirim...</span>`;
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('formAlert', 'Pendaftaran Anda berhasil disimpan!', 'success');
+                    lockForm();
+                } else {
+                    showAlert('formAlert', result.message, 'error');
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane text-sm"></i> <span>Kirim Pendaftaran</span>`;
+                }
+            } catch (err) {
+                showAlert('formAlert', 'Gagal mengirim data. Silakan coba beberapa saat lagi.', 'error');
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane text-sm"></i> <span>Kirim Pendaftaran</span>`;
+            }
+        }
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginForm').reset();
+            document.getElementById('makrabForm').reset();
+            document.getElementById('alasanContainer').classList.add('hidden');
+            document.getElementById('alreadySubmittedBanner').classList.add('hidden');
+            
+            // Reset status kunci form
+            const formFields = document.getElementById('formFields');
+            const inputs = formFields.querySelectorAll('input, textarea');
+            inputs.forEach(input => input.disabled = false);
+
+            const btnSubmit = document.getElementById('btnSubmitForm');
+            btnSubmit.disabled = false;
+            btnSubmit.className = "w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2";
+            btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane text-sm"></i> <span>Kirim Pendaftaran</span>`;
+
+            hideAlert('loginAlert');
+            hideAlert('formAlert');
+
+            document.getElementById('formCard').classList.add('hidden');
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('loginCard').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
