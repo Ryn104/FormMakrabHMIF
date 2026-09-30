@@ -131,8 +131,8 @@
                 </div>
 
                 <fieldset id="formFields" class="space-y-5">
-                    
-                    <!-- INPUT NOMOR TELEPON / WHATSAPP (BARU) -->
+
+                    <!-- INPUT NOMOR TELEPON / WHATSAPP -->
                     <div>
                         <label class="block text-sm font-medium text-slate-200 mb-1">Nomor WhatsApp / Telepon <span class="text-rose-500">*</span></label>
                         <div class="relative">
@@ -142,16 +142,31 @@
                         </div>
                     </div>
 
+                    <!-- JENIS KELAMIN -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-200 mb-2">Jenis Kelamin <span class="text-rose-500">*</span></label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500">
+                                <input type="radio" name="jenisKelamin" value="Laki-laki" required onchange="handleGenderChange(this.value)" class="text-blue-600 focus:ring-0">
+                                <span class="ml-2 text-sm font-medium text-slate-200">Laki-laki</span>
+                            </label>
+                            <label class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500">
+                                <input type="radio" name="jenisKelamin" value="Perempuan" required onchange="handleGenderChange(this.value)" class="text-blue-600 focus:ring-0">
+                                <span class="ml-2 text-sm font-medium text-slate-200">Perempuan</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Status Kehadiran -->
                     <div>
                         <label class="block text-sm font-medium text-slate-200 mb-2">Apakah Anda Akan Ikut Makrab? <span class="text-rose-500">*</span></label>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500">
-                                <input type="radio" name="kehadiran" value="Ikut" required onchange="toggleAlasan(false)" class="text-blue-600 focus:ring-0">
+                                <input type="radio" name="kehadiran" value="Ikut" required onchange="toggleKehadiran(false)" class="text-blue-600 focus:ring-0">
                                 <span class="ml-2 text-sm font-medium text-slate-200">Ikut</span>
                             </label>
                             <label class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-rose-600/20 has-[:checked]:border-rose-500">
-                                <input type="radio" name="kehadiran" value="Tidak Ikut" required onchange="toggleAlasan(true)" class="text-rose-600 focus:ring-0">
+                                <input type="radio" name="kehadiran" value="Tidak Ikut" required onchange="toggleKehadiran(true)" class="text-rose-600 focus:ring-0">
                                 <span class="ml-2 text-sm font-medium text-slate-200">Tidak Ikut</span>
                             </label>
                         </div>
@@ -164,19 +179,20 @@
                             class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-slate-200 text-sm placeholder:text-slate-600"></textarea>
                     </div>
 
-                    <!-- Membawa Motor -->
-                    <div>
+                    <!-- Membawa Motor (Sembunyi secara Default dengan id motorContainer) -->
+                    <div id="motorContainer" class="hidden">
                         <label class="block text-sm font-medium text-slate-200 mb-2">Apakah Membawa Motor? <span class="text-rose-500">*</span></label>
                         <div class="grid grid-cols-2 gap-3">
-                            <label class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500">
-                                <input type="radio" name="membawaMotor" value="Ya" required class="text-blue-600 focus:ring-0">
+                            <label id="labelMotorYa" class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500">
+                                <input type="radio" id="motorYa" name="membawaMotor" value="Ya" class="text-blue-600 focus:ring-0">
                                 <span class="ml-2 text-sm font-medium text-slate-200">Ya, Membawa</span>
                             </label>
-                            <label class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500">
-                                <input type="radio" name="membawaMotor" value="Tidak" required class="text-blue-600 focus:ring-0">
+                            <label id="labelMotorTidak" class="flex items-center justify-center p-3 border border-slate-700 rounded-xl cursor-pointer hover:bg-slate-700/50 transition has-[:checked]:bg-blue-600/20 has-[:checked]:border-blue-500">
+                                <input type="radio" id="motorTidak" name="membawaMotor" value="Tidak" class="text-blue-600 focus:ring-0">
                                 <span class="ml-2 text-sm font-medium text-slate-200">Tidak</span>
                             </label>
                         </div>
+                        <p id="motorNotice" class="hidden text-xs text-amber-400 mt-1.5"><i class="fa-solid fa-circle-info"></i> Peserta perempuan diatur otomatis untuk tidak membawa motor.</p>
                     </div>
 
                     <!-- Riwayat Penyakit -->
@@ -226,17 +242,37 @@
             document.getElementById(elementId).classList.add('hidden');
         }
 
-        // Toggle Alasan berdasarkan Status Kehadiran
-        function toggleAlasan(isTidakIkut) {
-            const container = document.getElementById('alasanContainer');
+        // Toggle Alasan & Motor berdasarkan Kehadiran
+        function toggleKehadiran(isTidakIkut) {
+            const alasanContainer = document.getElementById('alasanContainer');
             const textarea = document.getElementById('alasan');
+            const motorContainer = document.getElementById('motorContainer');
+            const radioMotor = document.querySelectorAll('input[name="membawaMotor"]');
+
             if (isTidakIkut) {
-                container.classList.remove('hidden');
+                // Jika TIDAK IKUT: Munculkan alasan, Sembunyikan Motor
+                alasanContainer.classList.remove('hidden');
                 textarea.required = true;
+
+                motorContainer.classList.add('hidden');
+                radioMotor.forEach(r => {
+                    r.required = false;
+                    r.checked = false; // Reset pilihan motor jika pernah memilih sebelumnya
+                });
             } else {
-                container.classList.add('hidden');
+                // Jika IKUT: Sembunyikan alasan, Munculkan Motor
+                alasanContainer.classList.add('hidden');
                 textarea.required = false;
                 textarea.value = '';
+
+                motorContainer.classList.remove('hidden');
+                radioMotor.forEach(r => r.required = true);
+
+                // Cek kembali kondisi jenis kelamin yang sedang terpilih
+                const genderSelected = document.querySelector('input[name="jenisKelamin"]:checked')?.value;
+                if (genderSelected) {
+                    handleGenderChange(genderSelected);
+                }
             }
         }
 
@@ -313,12 +349,34 @@
             btnSubmit.innerHTML = `<i class="fa-solid fa-lock text-sm"></i> <span>Sudah Mengisi Form</span>`;
         }
 
+        // Pilihan Jenis Kelamin
+        function handleGenderChange(gender) {
+            const motorYa = document.getElementById('motorYa');
+            const motorTidak = document.getElementById('motorTidak');
+            const labelMotorYa = document.getElementById('labelMotorYa');
+            const motorNotice = document.getElementById('motorNotice');
+
+            if (gender === 'Perempuan') {
+                motorTidak.checked = true;
+                motorYa.disabled = true;
+                labelMotorYa.classList.add('opacity-50', 'cursor-not-allowed');
+                labelMotorYa.classList.remove('cursor-pointer', 'hover:bg-slate-700/50');
+                motorNotice.classList.remove('hidden');
+            } else {
+                motorYa.disabled = false;
+                labelMotorYa.classList.remove('opacity-50', 'cursor-not-allowed');
+                labelMotorYa.classList.add('cursor-pointer', 'hover:bg-slate-700/50');
+                motorNotice.classList.add('hidden');
+            }
+        }
+
         // Handle Submit Pendaftaran
         async function handleFormSubmit(e) {
             e.preventDefault();
             hideAlert('formAlert');
 
             const telepon = document.getElementById('telepon').value.trim();
+            const jenisKelamin = document.querySelector('input[name="jenisKelamin"]:checked')?.value;
             const kehadiran = document.querySelector('input[name="kehadiran"]:checked')?.value;
             const alasan = document.getElementById('alasan').value.trim();
             const membawaMotor = document.querySelector('input[name="membawaMotor"]:checked')?.value;
@@ -340,9 +398,11 @@
                 nim: currentUser.nim,
                 nama: currentUser.nama,
                 telepon: telepon,
+                jenisKelamin: jenisKelamin,
                 kehadiran: kehadiran,
                 alasan: kehadiran === 'Tidak Ikut' ? alasan : '-',
-                membawaMotor: membawaMotor,
+                // Jika tidak ikut, otomatis set nilai motor ke '-'
+                membawaMotor: kehadiran === 'Ikut' ? membawaMotor : '-',
                 riwayatPenyakit: riwayatPenyakit || 'Tidak Ada'
             };
 
@@ -379,8 +439,21 @@
             document.getElementById('loginForm').reset();
             document.getElementById('makrabForm').reset();
             document.getElementById('alasanContainer').classList.add('hidden');
+            document.getElementById('motorContainer').classList.add('hidden'); // Sembunyikan container motor
             document.getElementById('alreadySubmittedBanner').classList.add('hidden');
+            document.getElementById('motorNotice').classList.add('hidden');
             
+            // Reset attribute required pada motor
+            const radioMotor = document.querySelectorAll('input[name="membawaMotor"]');
+            radioMotor.forEach(r => r.required = false);
+
+            // Reset status disable motor
+            const motorYa = document.getElementById('motorYa');
+            const labelMotorYa = document.getElementById('labelMotorYa');
+            motorYa.disabled = false;
+            labelMotorYa.classList.remove('opacity-50', 'cursor-not-allowed');
+            labelMotorYa.classList.add('cursor-pointer', 'hover:bg-slate-700/50');
+
             // Reset status kunci form
             const formFields = document.getElementById('formFields');
             const inputs = formFields.querySelectorAll('input, textarea');
