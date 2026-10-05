@@ -26,7 +26,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden">
 
     <!-- Background Decoration -->
     <div class="fixed inset-0 pointer-events-none z-0">
@@ -46,18 +46,67 @@
                     <p class="text-xs text-slate-400">Teknik Informatika</p>
                 </div>
             </div>
-            <!-- <div>
+            <div class="flex items-center gap-3">
+                <div id="adminNavInfo" class="hidden text-right">
+                    <p class="text-xs text-slate-400">Login sebagai</p>
+                    <p class="text-sm font-semibold text-emerald-400">Admin</p>
+                </div>
+                <button id="btnLogoutAdmin" onclick="logoutAdmin()" class="hidden px-3 py-2 bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-400 text-sm font-medium rounded-lg transition border border-slate-700 items-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Keluar</span>
+                </button>
                 <a href="/" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm font-medium rounded-lg transition flex items-center gap-2 border border-slate-700 text-slate-300">
                     <i class="fa-solid fa-arrow-left"></i> <span class="hidden sm:inline">Kembali ke Form</span>
                 </a>
-            </div> -->
+            </div>
         </div>
     </header>
 
     <!-- Main Content Container -->
-    <main class="relative z-10 max-w-6xl w-full mx-auto p-4 flex-grow my-4">
+    <main class="relative z-10 max-w-6xl w-full mx-auto p-4 flex-grow my-auto">
         
-        <div class="w-full">
+        <!-- SECTION LOGIN ADMIN -->
+        <div id="adminLoginWrapper" class="max-w-md mx-auto w-full my-12">
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-sm">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3 text-emerald-400">
+                        <i class="fa-solid fa-shield-halved text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Login Admin Dashboard</h2>
+                    <p class="text-sm text-slate-400 mt-1">Masukkan ID dan Password Admin untuk melihat data</p>
+                </div>
+
+                <div id="loginAdminAlert" class="hidden mb-4 p-3 rounded-lg text-sm flex items-center gap-2"></div>
+
+                <form id="loginAdminForm" onsubmit="handleLoginAdmin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">ID Admin</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user-shield absolute left-3 top-3.5 text-slate-500"></i>
+                            <input type="text" id="adminId" required placeholder="Masukkan ID admin" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-slate-200 placeholder:text-slate-600 font-mono">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Password</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-key absolute left-3 top-3.5 text-slate-500"></i>
+                            <input type="password" id="adminPassword" required placeholder="Masukkan password" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-slate-200 placeholder:text-slate-600">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnLoginAdmin" 
+                        class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 mt-2">
+                        <span>Masuk Dashboard</span>
+                        <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- SECTION DASHBOARD STATISTIK (Hidden by default) -->
+        <div id="dashboardStatsContainer" class="hidden w-full">
             <!-- Header Section -->
             <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
@@ -70,6 +119,7 @@
                 </button>
             </div>
 
+            <!-- Loading Spinner -->
             <div id="statsLoading" class="py-20 flex flex-col items-center justify-center text-slate-400 bg-slate-800/40 border border-slate-700/50 rounded-2xl">
                 <i class="fa-solid fa-circle-notch fa-spin text-5xl text-blue-500 mb-4"></i>
                 <p class="text-lg font-medium text-slate-300">Mengambil data dari server...</p>
@@ -77,8 +127,10 @@
             </div>
 
             <div id="statsContent" class="hidden space-y-6">
+                <!-- Summary Cards & Chart Row -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     
+                    <!-- Number Summary Cards -->
                     <div class="col-span-1 md:col-span-2 lg:col-span-1 space-y-4 flex flex-col justify-center">
                         <div class="bg-slate-800/80 border border-slate-700/80 p-5 rounded-2xl flex items-center gap-4 relative overflow-hidden">
                             <div class="absolute -right-4 -bottom-4 opacity-5">
@@ -164,7 +216,6 @@
                         </table>
                     </div>
                     
-                    <!-- Empty State Tabel -->
                     <div id="tableEmpty" class="hidden py-12 px-4 text-center text-slate-400 bg-slate-800/30">
                         <div class="bg-slate-700/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
                             <i class="fa-solid fa-folder-open text-2xl opacity-70"></i>
@@ -183,16 +234,68 @@
         &copy;Himpunan Mahasiswa Teknik Informatika. Makrab 2026.
     </footer>
 
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtIDThhPfjSQkJHiJJNKVVTGvMARuyCrKURU24akN9Py5IBtFfO3cXZlcF-JwZiI5f/exec";
         
-        let myChart = null; 
-        let myMotorChart = null; 
+        let myChart = null;
+        let myMotorChart = null;
 
-        // Panggil fetch data secara otomatis saat halaman pertama kali dibuka
-        window.addEventListener('DOMContentLoaded', () => {
-            loadStats();
-        });
+        function showAlert(elementId, message, type = 'error') {
+            const alertBox = document.getElementById(elementId);
+            alertBox.classList.remove('hidden', 'bg-rose-500/10', 'text-rose-400', 'border-rose-500/20', 'bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/20');
+            
+            if (type === 'error') {
+                alertBox.classList.add('bg-rose-500/10', 'text-rose-400', 'border', 'border-rose-500/20');
+                alertBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> <span>${message}</span>`;
+            } else {
+                alertBox.classList.add('bg-emerald-500/10', 'text-emerald-400', 'border', 'border-emerald-500/20');
+                alertBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${message}</span>`;
+            }
+        }
+
+        async function handleLoginAdmin(e) {
+            e.preventDefault();
+            const idInput = document.getElementById('adminId').value.trim();
+            const pwInput = document.getElementById('adminPassword').value.trim();
+            const btnLogin = document.getElementById('btnLoginAdmin');
+
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-sm"></i> <span>Memeriksa...</span>`;
+
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=loginAdmin&id=${encodeURIComponent(idInput)}&password=${encodeURIComponent(pwInput)}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('adminLoginWrapper').classList.add('hidden');
+                    document.getElementById('dashboardStatsContainer').classList.remove('hidden');
+                    document.getElementById('adminNavInfo').classList.remove('hidden');
+                    document.getElementById('btnLogoutAdmin').classList.remove('hidden');
+                    document.getElementById('btnLogoutAdmin').classList.add('flex');
+
+                    loadStats();
+                } else {
+                    showAlert('loginAdminAlert', result.message, 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showAlert('loginAdminAlert', 'Gagal terhubung ke server database.', 'error');
+            } finally {
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = `<span>Masuk Dashboard</span> <i class="fa-solid fa-arrow-right text-sm"></i>`;
+            }
+        }
+
+        function logoutAdmin() {
+            document.getElementById('loginAdminForm').reset();
+            document.getElementById('dashboardStatsContainer').classList.add('hidden');
+            document.getElementById('adminLoginWrapper').classList.remove('hidden');
+            document.getElementById('adminNavInfo').classList.add('hidden');
+            document.getElementById('btnLogoutAdmin').classList.remove('flex');
+            document.getElementById('btnLogoutAdmin').classList.add('hidden');
+            document.getElementById('loginAdminAlert').classList.add('hidden');
+        }
 
         async function loadStats() {
             document.getElementById('statsLoading').classList.remove('hidden');
@@ -223,18 +326,14 @@
         }
 
         function renderStatsUI(stats, dataPeserta) {
-            // 1. Update text Summary Card
             document.getElementById('statTotal').innerText = stats.total;
             document.getElementById('statLaki').innerText = stats.lakiLaki;
             document.getElementById('statPerempuan').innerText = stats.perempuan;
             document.getElementById('statMotor').innerText = stats.motor;
 
-            // 2. Render Chart.js Pie Chart
+            // Chart Gender
             const ctx = document.getElementById('genderChart').getContext('2d');
-            
-            if (myChart) {
-                myChart.destroy();
-            }
+            if (myChart) myChart.destroy();
 
             myChart = new Chart(ctx, {
                 type: 'pie',
@@ -242,14 +341,8 @@
                     labels: ['Laki-laki', 'Perempuan'],
                     datasets: [{
                         data: [stats.lakiLaki, stats.perempuan],
-                        backgroundColor: [
-                            'rgba(99, 102, 241, 0.85)', 
-                            'rgba(244, 63, 94, 0.85)'  
-                        ],
-                        borderColor: [
-                            '#1e293b', 
-                            '#1e293b'
-                        ],
+                        backgroundColor: ['rgba(99, 102, 241, 0.85)', 'rgba(244, 63, 94, 0.85)'],
+                        borderColor: ['#1e293b', '#1e293b'],
                         borderWidth: 3,
                         hoverOffset: 6
                     }]
@@ -260,23 +353,13 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: {
-                                color: '#cbd5e1', 
-                                font: {
-                                    family: "'Inter', sans-serif",
-                                    size: 13,
-                                    weight: '500'
-                                },
-                                padding: 20
-                            }
+                            labels: { color: '#cbd5e1', font: { family: "'Inter', sans-serif", size: 13, weight: '500' }, padding: 20 }
                         },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
                                     let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
+                                    if (label) label += ': ';
                                     if (context.parsed !== null) {
                                         const percentage = stats.total > 0 ? ((context.parsed / stats.total) * 100).toFixed(1) : 0;
                                         label += context.parsed + ' Orang (' + percentage + '%)';
@@ -289,30 +372,19 @@
                 }
             });
 
-            // 2b. Render Chart.js Pie Chart (Motor)
+            // Chart Motor
             const ctxMotor = document.getElementById('motorChart').getContext('2d');
-            
-            if (myMotorChart) {
-                myMotorChart.destroy();
-            }
+            if (myMotorChart) myMotorChart.destroy();
 
-            // Hitung yang tidak membawa motor (Total Peserta - Bawa Motor)
             const tidakMotor = stats.total - stats.motor;
-
             myMotorChart = new Chart(ctxMotor, {
                 type: 'pie',
                 data: {
                     labels: ['Bawa Motor', 'Tidak Bawa'],
                     datasets: [{
                         data: [stats.motor, tidakMotor],
-                        backgroundColor: [
-                            'rgba(16, 185, 129, 0.85)', 
-                            'rgba(100, 116, 139, 0.85)'   
-                        ],
-                        borderColor: [
-                            '#1e293b', 
-                            '#1e293b'
-                        ],
+                        backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(100, 116, 139, 0.85)'],
+                        borderColor: ['#1e293b', '#1e293b'],
                         borderWidth: 3,
                         hoverOffset: 6
                     }]
@@ -323,23 +395,13 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: {
-                                color: '#cbd5e1',
-                                font: {
-                                    family: "'Inter', sans-serif",
-                                    size: 13,
-                                    weight: '500'
-                                },
-                                padding: 20
-                            }
+                            labels: { color: '#cbd5e1', font: { family: "'Inter', sans-serif", size: 13, weight: '500' }, padding: 20 }
                         },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
                                     let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
+                                    if (label) label += ': ';
                                     if (context.parsed !== null) {
                                         const percentage = stats.total > 0 ? ((context.parsed / stats.total) * 100).toFixed(1) : 0;
                                         label += context.parsed + ' Orang (' + percentage + '%)';
@@ -352,10 +414,9 @@
                 }
             });
 
-            // 3. Render Table Data
+            // Render Table Data (Sorted by NIM Ascending)
             const tbody = document.getElementById('tableBody');
             const emptyState = document.getElementById('tableEmpty');
-            
             tbody.innerHTML = '';
 
             if (dataPeserta.length === 0) {
@@ -363,7 +424,10 @@
             } else {
                 emptyState.classList.add('hidden');
                 
-                // Looping data JSON dan membuat baris HTML untuk setiap orang
+                dataPeserta.sort((a, b) => {
+                    return String(a.nim).localeCompare(String(b.nim), undefined, {numeric: true});
+                });
+
                 dataPeserta.forEach((peserta, index) => {
                     const jkBadge = peserta.jenisKelamin === 'Laki-laki' 
                         ? `<span class="px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 shadow-sm"><i class="fa-solid fa-mars mr-1"></i> Laki-laki</span>`
@@ -381,9 +445,7 @@
                         <td class="px-5 py-3.5 text-slate-400 font-mono text-xs">${peserta.nim}</td>
                         <td class="px-5 py-3.5">${jkBadge}</td>
                         <td class="px-5 py-3.5 text-center">${motorBadge}</td>
-                        <td class="px-5 py-3.5 text-slate-400 font-mono text-xs hover:text-blue-400 cursor-pointer transition" title="Telepon Peserta">
-                            ${peserta.telepon}
-                        </td>
+                        <td class="px-5 py-3.5 text-slate-400 font-mono text-xs">${peserta.telepon}</td>
                     `;
                     tbody.appendChild(tr);
                 });
