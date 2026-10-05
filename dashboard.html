@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Statistik - Makrab Teknik Informatika</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="image/logoHMIF.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .table-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+        .table-scroll::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5); 
+            border-radius: 4px;
+        }
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: rgba(71, 85, 105, 0.8); 
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- Background Decoration -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="relative z-10 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-100 text-white p-2 rounded-xl shadow-lg shadow-blue-500/30">
+                    <img src="image/logo.png" alt="" class="size-8">
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white">MAKRAB IF</h1>
+                    <p class="text-xs text-slate-400">Teknik Informatika</p>
+                </div>
+            </div>
+            <div>
+                <a href="index.html" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm font-medium rounded-lg transition flex items-center gap-2 border border-slate-700 text-slate-300">
+                    <i class="fa-solid fa-arrow-left"></i> <span class="hidden sm:inline">Kembali ke Form</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="relative z-10 max-w-6xl w-full mx-auto p-4 flex-grow my-4">
+        
+        <div class="w-full">
+            <!-- Header Section -->
+            <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-users-viewfinder text-blue-400"></i> Data Maba Mengikuti Makrab
+                    </h2>
+                </div>
+                <button onclick="loadStats()" id="btnRefreshStats" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition shadow-lg shadow-blue-600/30 flex items-center gap-2 self-start md:self-auto border border-blue-500">
+                    <i class="fa-solid fa-rotate-right"></i> <span>Refresh Data</span>
+                </button>
+            </div>
+
+            <div id="statsLoading" class="py-20 flex flex-col items-center justify-center text-slate-400 bg-slate-800/40 border border-slate-700/50 rounded-2xl">
+                <i class="fa-solid fa-circle-notch fa-spin text-5xl text-blue-500 mb-4"></i>
+                <p class="text-lg font-medium text-slate-300">Mengambil data dari server...</p>
+                <p class="text-sm mt-1">Harap tunggu sebentar</p>
+            </div>
+
+            <div id="statsContent" class="hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <div class="col-span-1 md:col-span-2 lg:col-span-1 space-y-4 flex flex-col justify-center">
+                        <div class="bg-slate-800/80 border border-slate-700/80 p-5 rounded-2xl flex items-center gap-4 relative overflow-hidden">
+                            <div class="absolute -right-4 -bottom-4 opacity-5">
+                                <i class="fa-solid fa-users text-8xl"></i>
+                            </div>
+                            <div class="bg-blue-500/20 border border-blue-500/30 p-3 rounded-xl text-blue-400 relative z-10">
+                                <i class="fa-solid fa-users text-2xl"></i>
+                            </div>
+                            <div class="relative z-10">
+                                <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Peserta Ikut</p>
+                                <h3 id="statTotal" class="text-4xl font-bold text-white mt-1 drop-shadow-md">0</h3>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl shadow-inner">
+                                <p class="text-xs text-slate-400 mb-1 font-medium">Laki-laki</p>
+                                <div class="flex items-center gap-2 text-indigo-400">
+                                    <i class="fa-solid fa-mars"></i>
+                                    <span id="statLaki" class="text-2xl font-bold text-white">0</span>
+                                </div>
+                            </div>
+                            <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl shadow-inner">
+                                <p class="text-xs text-slate-400 mb-1 font-medium">Perempuan</p>
+                                <div class="flex items-center gap-2 text-rose-400">
+                                    <i class="fa-solid fa-venus"></i>
+                                    <span id="statPerempuan" class="text-2xl font-bold text-white">0</span>
+                                </div>
+                            </div>
+                            <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl shadow-inner col-span-2">
+                                <p class="text-xs text-slate-400 mb-1 font-medium">Membawa Motor</p>
+                                <div class="flex items-center gap-2 text-amber-400">
+                                    <i class="fa-solid fa-motorcycle"></i>
+                                    <span id="statMotor" class="text-2xl font-bold text-white">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ChartJS Container: Gender -->
+                    <div class="col-span-1 bg-slate-800/80 border border-slate-700/80 p-6 rounded-2xl flex flex-col items-center justify-center relative min-h-[300px]">
+                        <div class="absolute top-0 left-0 w-full p-4 border-b border-slate-700/60 bg-slate-800/50 rounded-t-2xl">
+                            <h4 class="text-sm font-semibold text-slate-300"><i class="fa-solid fa-chart-pie mr-2 text-emerald-400"></i>Persentase Berdasarkan Gender</h4>
+                        </div>
+                        <div class="w-full h-[220px] mt-10">
+                            <canvas id="genderChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- ChartJS Container: Motor -->
+                    <div class="col-span-1 bg-slate-800/80 border border-slate-700/80 p-6 rounded-2xl flex flex-col items-center justify-center relative min-h-[300px]">
+                        <div class="absolute top-0 left-0 w-full p-4 border-b border-slate-700/60 bg-slate-800/50 rounded-t-2xl">
+                            <h4 class="text-sm font-semibold text-slate-300"><i class="fa-solid fa-motorcycle mr-2 text-amber-400"></i>Persentase Bawa Motor</h4>
+                        </div>
+                        <div class="w-full h-[220px] mt-10">
+                            <canvas id="motorChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Data -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="p-5 border-b border-slate-700/80 bg-slate-800/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <h3 class="font-semibold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-list-ul text-blue-400"></i> Daftar Peserta Makrab IF 2026
+                        </h3>
+                    </div>
+                    
+                    <div class="overflow-x-auto table-scroll">
+                        <table class="w-full text-left text-sm whitespace-nowrap">
+                            <thead class="bg-slate-900/80 text-slate-300 uppercase text-xs border-b border-slate-700">
+                                <tr>
+                                    <th class="px-5 py-4 font-semibold w-16 text-center">No</th>
+                                    <th class="px-5 py-4 font-semibold">Nama Lengkap</th>
+                                    <th class="px-5 py-4 font-semibold">NIM</th>
+                                    <th class="px-5 py-4 font-semibold">Jenis Kelamin</th>
+                                    <th class="px-5 py-4 font-semibold text-center">Bawa Motor</th>
+                                    <th class="px-5 py-4 font-semibold">Nomor Telepon</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody" class="divide-y divide-slate-700/60 text-slate-200">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Empty State Tabel -->
+                    <div id="tableEmpty" class="hidden py-12 px-4 text-center text-slate-400 bg-slate-800/30">
+                        <div class="bg-slate-700/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-folder-open text-2xl opacity-70"></i>
+                        </div>
+                        <p class="font-medium text-slate-300">Belum Ada Data</p>
+                        <p class="text-xs mt-1">Data pendaftar yang ikut akan muncul di sini.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-slate-800 bg-slate-900/80 py-4 text-center text-xs text-slate-500 mt-auto">
+        &copy;Himpunan Mahasiswa Teknik Informatika. Makrab 2026.
+    </footer>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtIDThhPfjSQkJHiJJNKVVTGvMARuyCrKURU24akN9Py5IBtFfO3cXZlcF-JwZiI5f/exec";
+        
+        let myChart = null; 
+        let myMotorChart = null; 
+
+        // Panggil fetch data secara otomatis saat halaman pertama kali dibuka
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+        });
+
+        async function loadStats() {
+            document.getElementById('statsLoading').classList.remove('hidden');
+            document.getElementById('statsContent').classList.add('hidden');
+            
+            const btnRefresh = document.getElementById('btnRefreshStats');
+            btnRefresh.disabled = true;
+            btnRefresh.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Memuat...</span>`;
+
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getStats`);
+                const result = await response.json();
+
+                if (result.success) {
+                    renderStatsUI(result.stats, result.data);
+                } else {
+                    alert('Gagal mengambil data statistik: ' + result.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Terjadi kesalahan koneksi saat mengambil data statistik.');
+            } finally {
+                document.getElementById('statsLoading').classList.add('hidden');
+                document.getElementById('statsContent').classList.remove('hidden');
+                btnRefresh.disabled = false;
+                btnRefresh.innerHTML = `<i class="fa-solid fa-rotate-right"></i> <span>Refresh Data</span>`;
+            }
+        }
+
+        function renderStatsUI(stats, dataPeserta) {
+            // 1. Update text Summary Card
+            document.getElementById('statTotal').innerText = stats.total;
+            document.getElementById('statLaki').innerText = stats.lakiLaki;
+            document.getElementById('statPerempuan').innerText = stats.perempuan;
+            document.getElementById('statMotor').innerText = stats.motor;
+
+            // 2. Render Chart.js Pie Chart
+            const ctx = document.getElementById('genderChart').getContext('2d');
+            
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Laki-laki', 'Perempuan'],
+                    datasets: [{
+                        data: [stats.lakiLaki, stats.perempuan],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.85)', 
+                            'rgba(244, 63, 94, 0.85)'  
+                        ],
+                        borderColor: [
+                            '#1e293b', 
+                            '#1e293b'
+                        ],
+                        borderWidth: 3,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#cbd5e1', 
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 13,
+                                    weight: '500'
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        const percentage = stats.total > 0 ? ((context.parsed / stats.total) * 100).toFixed(1) : 0;
+                                        label += context.parsed + ' Orang (' + percentage + '%)';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2b. Render Chart.js Pie Chart (Motor)
+            const ctxMotor = document.getElementById('motorChart').getContext('2d');
+            
+            if (myMotorChart) {
+                myMotorChart.destroy();
+            }
+
+            // Hitung yang tidak membawa motor (Total Peserta - Bawa Motor)
+            const tidakMotor = stats.total - stats.motor;
+
+            myMotorChart = new Chart(ctxMotor, {
+                type: 'pie',
+                data: {
+                    labels: ['Bawa Motor', 'Tidak Bawa'],
+                    datasets: [{
+                        data: [stats.motor, tidakMotor],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.85)', 
+                            'rgba(100, 116, 139, 0.85)'   
+                        ],
+                        borderColor: [
+                            '#1e293b', 
+                            '#1e293b'
+                        ],
+                        borderWidth: 3,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#cbd5e1',
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 13,
+                                    weight: '500'
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        const percentage = stats.total > 0 ? ((context.parsed / stats.total) * 100).toFixed(1) : 0;
+                                        label += context.parsed + ' Orang (' + percentage + '%)';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 3. Render Table Data
+            const tbody = document.getElementById('tableBody');
+            const emptyState = document.getElementById('tableEmpty');
+            
+            tbody.innerHTML = '';
+
+            if (dataPeserta.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                // Looping data JSON dan membuat baris HTML untuk setiap orang
+                dataPeserta.forEach((peserta, index) => {
+                    const jkBadge = peserta.jenisKelamin === 'Laki-laki' 
+                        ? `<span class="px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 shadow-sm"><i class="fa-solid fa-mars mr-1"></i> Laki-laki</span>`
+                        : `<span class="px-2.5 py-1 rounded-md text-xs font-medium bg-rose-500/20 text-rose-300 border border-rose-500/20 shadow-sm"><i class="fa-solid fa-venus mr-1"></i> Perempuan</span>`;
+
+                    const motorBadge = peserta.bawaMotor === 'Ya'
+                        ? `<span class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm uppercase tracking-wider"><i class="fa-solid fa-motorcycle mr-1"></i> Ya</span>`
+                        : `<span class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold bg-slate-700/50 text-slate-400 border border-slate-600 shadow-sm uppercase tracking-wider"><i class="fa-solid fa-xmark mr-1"></i> Tidak</span>`;
+
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-700/40 transition duration-200 group";
+                    tr.innerHTML = `
+                        <td class="px-5 py-3.5 text-center text-slate-500 font-mono text-sm group-hover:text-slate-300 transition">${index + 1}</td>
+                        <td class="px-5 py-3.5 font-medium text-slate-200">${peserta.nama}</td>
+                        <td class="px-5 py-3.5 text-slate-400 font-mono text-xs">${peserta.nim}</td>
+                        <td class="px-5 py-3.5">${jkBadge}</td>
+                        <td class="px-5 py-3.5 text-center">${motorBadge}</td>
+                        <td class="px-5 py-3.5 text-slate-400 font-mono text-xs hover:text-blue-400 cursor-pointer transition" title="Telepon Peserta">
+                            ${peserta.telepon}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

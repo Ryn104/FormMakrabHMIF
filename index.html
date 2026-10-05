@@ -89,6 +89,14 @@
                     <i class="fa-solid fa-arrow-right text-sm"></i>
                 </button>
             </form>
+            
+            <div class="mt-6 pt-6 border-t border-slate-700/60 text-center">
+                <a href="dashboard.html" id="btnLihatStats"
+                    class="w-full py-2.5 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 text-slate-200 text-sm font-semibold rounded-xl transition flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-emerald-500/10">
+                    <i class="fa-solid fa-chart-pie text-emerald-400"></i>
+                    <span>Lihat Data Statistik & Pendaftar</span>
+                </a>
+            </div>
         </div>
 
         <!-- SECTION 2: FORM PENDAFTARAN -->
@@ -250,17 +258,15 @@
             const radioMotor = document.querySelectorAll('input[name="membawaMotor"]');
 
             if (isTidakIkut) {
-                // Jika TIDAK IKUT: Munculkan alasan, Sembunyikan Motor
                 alasanContainer.classList.remove('hidden');
                 textarea.required = true;
 
                 motorContainer.classList.add('hidden');
                 radioMotor.forEach(r => {
                     r.required = false;
-                    r.checked = false; // Reset pilihan motor jika pernah memilih sebelumnya
+                    r.checked = false; 
                 });
             } else {
-                // Jika IKUT: Sembunyikan alasan, Munculkan Motor
                 alasanContainer.classList.add('hidden');
                 textarea.required = false;
                 textarea.value = '';
@@ -306,13 +312,11 @@
                 if (result.success) {
                     currentUser = { nim, nama };
                     
-                    // Set Data Form Otomatis
                     document.getElementById('formNim').value = nim;
                     document.getElementById('formNama').value = nama;
                     document.getElementById('navUserNim').innerText = nim;
                     document.getElementById('navUserNama').innerText = nama;
 
-                    // Berpindah ke Tampilan Form
                     document.getElementById('loginCard').classList.add('hidden');
                     document.getElementById('formCard').classList.remove('hidden');
                     document.getElementById('userInfo').classList.remove('hidden');
@@ -342,7 +346,6 @@
             const inputs = formFields.querySelectorAll('input, textarea');
             inputs.forEach(input => input.disabled = true);
 
-            // Ubah tombol submit
             const btnSubmit = document.getElementById('btnSubmitForm');
             btnSubmit.disabled = true;
             btnSubmit.className = "w-full py-3 bg-slate-700 text-slate-400 font-semibold rounded-xl cursor-not-allowed flex items-center justify-center gap-2";
@@ -383,7 +386,6 @@
             const riwayatPenyakit = document.getElementById('riwayatPenyakit').value.trim();
             const btnSubmit = document.getElementById('btnSubmitForm');
 
-            // Validasi Nomor Telepon
             if (!/^[0-9+\s-]{9,15}$/.test(telepon)) {
                 showAlert('formAlert', 'Masukkan nomor WhatsApp/Telepon yang valid!', 'error');
                 return;
@@ -401,7 +403,6 @@
                 jenisKelamin: jenisKelamin,
                 kehadiran: kehadiran,
                 alasan: kehadiran === 'Tidak Ikut' ? alasan : '-',
-                // Jika tidak ikut, otomatis set nilai motor ke '-'
                 membawaMotor: kehadiran === 'Ikut' ? membawaMotor : '-',
                 riwayatPenyakit: riwayatPenyakit || 'Tidak Ada'
             };
@@ -439,22 +440,19 @@
             document.getElementById('loginForm').reset();
             document.getElementById('makrabForm').reset();
             document.getElementById('alasanContainer').classList.add('hidden');
-            document.getElementById('motorContainer').classList.add('hidden'); // Sembunyikan container motor
+            document.getElementById('motorContainer').classList.add('hidden'); 
             document.getElementById('alreadySubmittedBanner').classList.add('hidden');
             document.getElementById('motorNotice').classList.add('hidden');
             
-            // Reset attribute required pada motor
             const radioMotor = document.querySelectorAll('input[name="membawaMotor"]');
             radioMotor.forEach(r => r.required = false);
 
-            // Reset status disable motor
             const motorYa = document.getElementById('motorYa');
             const labelMotorYa = document.getElementById('labelMotorYa');
             motorYa.disabled = false;
             labelMotorYa.classList.remove('opacity-50', 'cursor-not-allowed');
             labelMotorYa.classList.add('cursor-pointer', 'hover:bg-slate-700/50');
 
-            // Reset status kunci form
             const formFields = document.getElementById('formFields');
             const inputs = formFields.querySelectorAll('input, textarea');
             inputs.forEach(input => input.disabled = false);
