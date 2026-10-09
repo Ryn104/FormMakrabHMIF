@@ -102,6 +102,15 @@
         <!-- SECTION 2: FORM PENDAFTARAN -->
         <div id="formCard" class="hidden bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-sm transition-all duration-300">
             
+            <!-- Banner Jika Pendaftaran Ditutup -->
+            <div id="formClosedBanner" class="hidden mb-6 p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start gap-3">
+                <i class="fa-solid fa-circle-xmark text-rose-400 text-xl mt-0.5"></i>
+                <div>
+                    <h4 class="font-semibold text-rose-300">Pendaftaran Telah Ditutup</h4>
+                    <p class="text-xs text-slate-300 mt-0.5">Batas waktu pengisian formulir Makrab telah berakhir. Anda tidak dapat lagi mengirim respons baru. Info lebih lanjut bisa menghubungi Panitia!</p>
+                </div>
+            </div>
+
             <!-- Banner Jika Sudah Mengisi -->
             <div id="alreadySubmittedBanner" class="hidden mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-3">
                 <i class="fa-solid fa-circle-info text-amber-400 text-xl mt-0.5"></i>
@@ -230,6 +239,9 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtIDThhPfjSQkJHiJJNKVVTGvMARuyCrKURU24akN9Py5IBtFfO3cXZlcF-JwZiI5f/exec";
 
+        // UBAH VARIABEL INI MENJADI true UNTUK MENUTUP PENDAFTARAN
+        const IS_FORM_CLOSED = true; 
+
         let currentUser = null;
 
         // Tampilkan Alert Pesan
@@ -321,9 +333,13 @@
                     document.getElementById('formCard').classList.remove('hidden');
                     document.getElementById('userInfo').classList.remove('hidden');
 
-                    // CEK JIKA MAHASISWA SUDAH PERNAH MENGISI
+                    // PENANGANAN PENDAFTARAN DITUTUP ATAU SUDAH MENGISI
+                    const isClosedFromServer = result.isClosed || IS_FORM_CLOSED;
+
                     if (result.alreadySubmitted) {
-                        lockForm();
+                        lockForm('alreadySubmitted');
+                    } else if (isClosedFromServer) {
+                        lockForm('closed');
                     }
 
                 } else {
@@ -337,19 +353,26 @@
             }
         }
 
-        // Kunci Form Jika Sudah Mengisi
-        function lockForm() {
-            document.getElementById('alreadySubmittedBanner').classList.remove('hidden');
-            
-            // Disable seluruh fieldset
+        // Kunci Form (Sebab: 'alreadySubmitted' atau 'closed')
+        function lockForm(reason = 'alreadySubmitted') {
+            const btnSubmit = document.getElementById('btnSubmitForm');
             const formFields = document.getElementById('formFields');
             const inputs = formFields.querySelectorAll('input, textarea');
-            inputs.forEach(input => input.disabled = true);
 
-            const btnSubmit = document.getElementById('btnSubmitForm');
+            // Disable seluruh field
+            inputs.forEach(input => input.disabled = true);
             btnSubmit.disabled = true;
             btnSubmit.className = "w-full py-3 bg-slate-700 text-slate-400 font-semibold rounded-xl cursor-not-allowed flex items-center justify-center gap-2";
-            btnSubmit.innerHTML = `<i class="fa-solid fa-lock text-sm"></i> <span>Sudah Mengisi Form</span>`;
+
+            if (reason === 'closed') {
+                document.getElementById('formClosedBanner').classList.remove('hidden');
+                document.getElementById('alreadySubmittedBanner').classList.add('hidden');
+                btnSubmit.innerHTML = `<i class="fa-solid fa-lock text-sm"></i> <span>Pendaftaran Ditutup</span>`;
+            } else {
+                document.getElementById('alreadySubmittedBanner').classList.remove('hidden');
+                document.getElementById('formClosedBanner').classList.add('hidden');
+                btnSubmit.innerHTML = `<i class="fa-solid fa-lock text-sm"></i> <span>Sudah Mengisi Form</span>`;
+            }
         }
 
         // Pilihan Jenis Kelamin
@@ -377,6 +400,11 @@
         async function handleFormSubmit(e) {
             e.preventDefault();
             hideAlert('formAlert');
+
+            if (IS_FORM_CLOSED) {
+                showAlert('formAlert', 'Pendaftaran telah ditutup. Anda tidak dapat mengirim respons.', 'error');
+                return;
+            }
 
             const telepon = document.getElementById('telepon').value.trim();
             const jenisKelamin = document.querySelector('input[name="jenisKelamin"]:checked')?.value;
@@ -421,7 +449,7 @@
 
                 if (result.success) {
                     showAlert('formAlert', 'Pendaftaran Anda berhasil disimpan!', 'success');
-                    lockForm();
+                    lockForm('alreadySubmitted');
                 } else {
                     showAlert('formAlert', result.message, 'error');
                     btnSubmit.disabled = false;
@@ -442,6 +470,7 @@
             document.getElementById('alasanContainer').classList.add('hidden');
             document.getElementById('motorContainer').classList.add('hidden'); 
             document.getElementById('alreadySubmittedBanner').classList.add('hidden');
+            document.getElementById('formClosedBanner').classList.add('hidden');
             document.getElementById('motorNotice').classList.add('hidden');
             
             const radioMotor = document.querySelectorAll('input[name="membawaMotor"]');
