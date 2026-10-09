@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presensi TechMeet - Makrab Teknik Informatika</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="image/logoHMIF.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .table-scroll::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .table-scroll::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5); 
+            border-radius: 4px;
+        }
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: rgba(71, 85, 105, 0.8); 
+            border-radius: 4px;
+        }
+        @keyframes pulse-light {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-light 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+    <!-- Background Decoration -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 -right-40 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 left-1/3 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="relative z-10 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-100 text-white p-2 rounded-xl shadow-lg shadow-blue-500/30">
+                    <img src="image/logo.png" alt="" class="size-8">
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white">MAKRAB IF</h1>
+                    <p class="text-xs text-slate-400">Teknik Informatika</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <!-- <button onclick="saveToSpreadsheet()" id="btnSaveHeader" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl transition shadow-lg shadow-emerald-600/20 flex items-center gap-1.5">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span class="hidden sm:inline">Simpan ke Spreadsheet</span>
+                </button>
+                <button onclick="openConfigModal()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 transition" title="Pengaturan Web App API">
+                    <i class="fa-solid fa-gear"></i>
+                </button> -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="relative z-10 max-w-6xl w-full mx-auto p-4 flex-grow space-y-6 my-4">
+
+        <!-- Top Notification Banner -->
+        <div id="statusAlert" class="hidden p-4 rounded-xl border text-sm flex items-center justify-between transition-all duration-300">
+            <div class="flex items-center gap-3">
+                <i id="statusIcon" class="text-xl"></i>
+                <div>
+                    <p id="statusTitle" class="font-semibold"></p>
+                    <p id="statusDesc" class="text-xs opacity-90"></p>
+                </div>
+            </div>
+            <button onclick="hideAlert()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+
+        <!-- Quick Check-in Card & Live Stats -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Quick Input Section (7 Cols) -->
+            <div class="lg:col-span-7 bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 shadow-xl backdrop-blur-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-qrcode text-emerald-400"></i> Presensi Cepat Mahasiswa
+                        </h2>
+                        <span class="text-xs text-slate-400"><i class="fa-regular fa-clock mr-1"></i> <span id="clock">00:00:00</span> WIB</span>
+                    </div>
+
+                    <form id="checkinForm" onsubmit="handleManualCheckin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Cari NIM atau Nama</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-id-card absolute left-3.5 top-3.5 text-slate-500"></i>
+                                <input type="text" id="nimInput" required placeholder="Ketik NIM (contoh: 260414001) atau Nama Mahasiswa" 
+                                    class="w-full pl-11 pr-24 py-3 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-slate-100 placeholder:text-slate-500 text-sm font-mono">
+                                <button type="submit" id="btnCheckin" class="absolute right-1.5 top-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition shadow-md shadow-blue-600/30 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-check"></i> Hadir
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Quick Result Box / Preview -->
+                    <div id="checkinResult" class="hidden mt-4 p-4 rounded-xl border border-slate-700 bg-slate-900/90 transition-all">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-3">
+                                <div id="checkinAvatar" class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg border border-emerald-500/30">
+                                    ✓
+                                </div>
+                                <div>
+                                    <p id="resNama" class="font-semibold text-white text-sm">Nama Mahasiswa</p>
+                                    <p id="resNim" class="text-xs text-slate-400 font-mono">NIM: 00000000</p>
+                                </div>
+                            </div>
+                            <span id="resTime" class="text-[11px] font-mono px-2 py-1 bg-slate-800 text-emerald-400 rounded-md border border-slate-700">10:45:12</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-700/60 flex items-center justify-between text-xs text-slate-400">
+                    <span><i class="fa-solid fa-info-circle text-blue-400 mr-1"></i> Input NIM lalu tekan Enter untuk presensi.</span>
+                    <div class="flex items-center gap-3">
+                        <button onclick="syncData()" id="btnSync" class="text-xs text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1">
+                            <i class="fa-solid fa-rotate"></i> Sync Spreadsheet
+                        </button>
+                        <button onclick="saveToSpreadsheet()" id="btnSaveQuick" class="text-xs text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Spreadsheet
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Stats Summary Cards (5 Cols) -->
+            <div class="lg:col-span-5 grid grid-cols-2 gap-4">
+                
+                <!-- Card Total -->
+                <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Peserta</span>
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                            <i class="fa-solid fa-users text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h3 id="statTotal" class="text-3xl font-bold text-white">0</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mahasiswa Terdaftar</p>
+                    </div>
+                </div>
+
+                <!-- Card Hadir -->
+                <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-400">Sudah Hadir</span>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                            <i class="fa-solid fa-user-check text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h3 id="statHadir" class="text-3xl font-bold text-emerald-400">0</h3>
+                        <p id="statPercent" class="text-[11px] text-emerald-500/90 font-medium mt-0.5">0% Kehadiran</p>
+                    </div>
+                </div>
+
+                <!-- Card Belum Hadir -->
+                <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-amber-400">Belum Hadir</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                            <i class="fa-solid fa-user-clock text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h3 id="statBelum" class="text-3xl font-bold text-amber-400">0</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Mahasiswa Belum Absen</p>
+                    </div>
+                </div>
+
+                <!-- Card Progres -->
+                <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Progres Presensi</span>
+                        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                            <i class="fa-solid fa-chart-line text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <div class="w-full bg-slate-700 rounded-full h-2 mb-2">
+                            <div id="progressBar" class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-400 flex justify-between">
+                            <span>Target: 100%</span>
+                            <span id="progressText" class="font-medium text-slate-200">0/0</span>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Table Data & Filtering Toolbar -->
+        <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl overflow-hidden shadow-xl">
+            
+            <!-- Table Header Toolbar -->
+            <div class="p-5 border-b border-slate-700/80 bg-slate-800/50 flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-white flex items-center gap-2 text-base">
+                        <i class="fa-solid fa-list-check text-blue-400"></i> Daftar Peserta Technical Meeting
+                    </h3>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-3">
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                        <input type="text" id="searchTable" oninput="filterTable()" placeholder="Cari nama atau NIM..." 
+                            class="w-full pl-9 pr-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none text-slate-200 placeholder:text-slate-500">
+                    </div>
+
+                    <select id="filterStatus" onchange="filterTable()" class="w-full sm:w-auto px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none text-slate-200 cursor-pointer">
+                        <option value="all">Semua Status</option>
+                        <option value="hadir">Sudah Hadir</option>
+                        <option value="belum">Belum Hadir</option>
+                    </select>
+
+                    <button onclick="exportCSV()" class="w-full sm:w-auto px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition border border-slate-600 flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-file-excel text-emerald-400"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="overflow-x-auto table-scroll">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-slate-900/90 text-slate-300 uppercase text-xs border-b border-slate-700">
+                        <tr>
+                            <th class="px-5 py-4 font-semibold w-12 text-center">No</th>
+                            <th class="px-5 py-4 font-semibold">Nama Mahasiswa</th>
+                            <th class="px-5 py-4 font-semibold">NIM</th>
+                            <th class="px-5 py-4 font-semibold">Jenis Kelamin</th>
+                            <th class="px-5 py-4 font-semibold">Bawa Motor</th>
+                            <th class="px-5 py-4 font-semibold text-center">Status</th>
+                            <th class="px-5 py-4 font-semibold text-center">Waktu Presensi</th>
+                            <th class="px-5 py-4 font-semibold text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-700/60 text-slate-200">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="tableEmpty" class="hidden py-12 px-4 text-center text-slate-400 bg-slate-800/30">
+                <div class="bg-slate-700/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-500">
+                    <i class="fa-solid fa-user-slash text-2xl"></i>
+                </div>
+                <p class="font-medium text-slate-300">Data Tidak Ditemukan</p>
+                <p class="text-xs mt-1 text-slate-500">Coba ubah kata kunci pencarian atau filter status.</p>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal Config Script URL -->
+    <div id="configModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+                <h3 class="font-bold text-white text-base flex items-center gap-2">
+                    <i class="fa-solid fa-link text-blue-400"></i> Pengaturan Web App Google Script
+                </h3>
+                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+                Aplikasi ini mengambil data pendaftaran dan menyimpan data peserta yang <b>sudah hadir</b> ke sheet <code class="bg-slate-900 px-1 py-0.5 rounded text-blue-300 font-mono">TechMeet</code> (NIM, Nama, Jenis Kelamin, No HP, Waktu Presensi).
+            </p>
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Web App URL (exec):</label>
+                <input type="text" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" 
+                    class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-slate-100 outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeConfigModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-xs text-slate-200 rounded-lg">Batal</button>
+                <button onclick="saveScriptUrl()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white rounded-lg shadow-md">Simpan & Sync</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-slate-800 bg-slate-900/80 py-4 text-center text-xs text-slate-500 mt-auto">
+        &copy; Himpunan Mahasiswa Teknik Informatika (HMIF). Presensi TechMeet Makrab 2026.
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Google Apps Script Web App Endpoint URL
+        let SCRIPT_URL = localStorage.getItem('techmeet_script_url') || "https://script.google.com/macros/s/AKfycbxtIDThhPfjSQkJHiJJNKVVTGvMARuyCrKURU24akN9Py5IBtFfO3cXZlcF-JwZiI5f/exec";
+
+        // Array penyimpanan data mahasiswa
+        let mabaData = [];
+
+        // Map status kehadiran berdasarkan NIM
+        let attendanceMap = {};
+
+        function loadStoredData() {
+            const storedAttendance = localStorage.getItem('techmeet_attendance_logs');
+            if (storedAttendance) {
+                try {
+                    attendanceMap = JSON.parse(storedAttendance);
+                } catch(e) {
+                    console.error("Gagal parse logs", e);
+                }
+            }
+
+            mabaData.forEach(m => {
+                if (attendanceMap[m.nim]) {
+                    m.hadir = attendanceMap[m.nim].hadir;
+                    m.waktuHadir = attendanceMap[m.nim].waktuHadir;
+                }
+            });
+        }
+
+        function saveAttendanceLogs() {
+            mabaData.forEach(m => {
+                attendanceMap[m.nim] = {
+                    hadir: m.hadir,
+                    waktuHadir: m.waktuHadir
+                };
+            });
+            localStorage.setItem('techmeet_attendance_logs', JSON.stringify(attendanceMap));
+            updateStatsUI();
+            renderTableUI();
+        }
+
+        // Simpan / Kirim Data Presensi ke Google Spreadsheet (Sheet 'TechMeet')
+        async function saveToSpreadsheet() {
+            const btnHeader = document.getElementById('btnSaveHeader');
+            const btnQuick = document.getElementById('btnSaveQuick');
+            
+            const originalHeaderContent = btnHeader ? btnHeader.innerHTML : '';
+            const originalQuickContent = btnQuick ? btnQuick.innerHTML : '';
+
+            const mabaHadir = mabaData.filter(m => m.hadir);
+
+            if (mabaHadir.length === 0) {
+                showNotification("Belum Ada Presensi", "Belum ada peserta yang di-absen untuk disimpan ke sheet TechMeet.", "warning");
+                return;
+            }
+
+            if (btnHeader) {
+                btnHeader.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span class="hidden sm:inline">Menyimpan...</span>`;
+                btnHeader.disabled = true;
+            }
+            if (btnQuick) {
+                btnQuick.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...`;
+                btnQuick.disabled = true;
+            }
+
+            const attendancePayload = mabaHadir.map(m => ({
+                nim: m.nim,
+                nama: m.nama,
+                jenisKelamin: m.jenisKelamin || "-",
+                telepon: m.telepon || "-",
+                waktuHadir: m.waktuHadir || "-"
+            }));
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'saveAttendance',
+                        targetSheet: 'TechMeet',
+                        attendance: attendancePayload,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+
+                saveAttendanceLogs();
+
+                showNotification(
+                    "Data Berhasil Disimpan!", 
+                    `${mabaHadir.length} peserta hadir telah disimpan ke sheet 'TechMeet' (NIM, Nama, JK, No HP, Waktu Presensi).`, 
+                    "success"
+                );
+            } catch (err) {
+                console.error("Gagal mengirim data ke spreadsheet:", err);
+                saveAttendanceLogs();
+                showNotification(
+                    "Tersimpan di Lokal", 
+                    "Gagal menghubungi server Google Apps Script. Data presensi tetap tersimpan di memori browser.", 
+                    "warning"
+                );
+            } finally {
+                if (btnHeader) {
+                    btnHeader.innerHTML = originalHeaderContent;
+                    btnHeader.disabled = false;
+                }
+                if (btnQuick) {
+                    btnQuick.innerHTML = originalQuickContent;
+                    btnQuick.disabled = false;
+                }
+            }
+        }
+
+        // Live Clock
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
+            const clockEl = document.getElementById('clock');
+            if (clockEl) clockEl.innerText = timeStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Checkin Input Manual
+        function handleManualCheckin(e) {
+            e.preventDefault();
+            const query = document.getElementById('nimInput').value.trim().toLowerCase();
+            if (!query) return;
+
+            const target = mabaData.find(m => 
+                m.nim.toLowerCase() === query || 
+                m.nama.toLowerCase().includes(query)
+            );
+
+            if (target) {
+                const nowStr = new Date().toLocaleTimeString('id-ID', { hour12: false });
+                
+                if (target.hadir) {
+                    showNotification("Sudah Hadir Sebelumnya", `${target.nama} (${target.nim}) telah tercatat hadir pada ${target.waktuHadir}.`, "warning");
+                } else {
+                    target.hadir = true;
+                    target.waktuHadir = nowStr;
+                    saveAttendanceLogs();
+                    showNotification("Presensi Berhasil!", `${target.nama} (${target.nim}) berhasil dicatat HADIR.`, "success");
+                    
+                    const resBox = document.getElementById('checkinResult');
+                    document.getElementById('resNama').innerText = target.nama;
+                    document.getElementById('resNim').innerText = `NIM: ${target.nim}`;
+                    document.getElementById('resTime').innerText = nowStr;
+                    resBox.classList.remove('hidden');
+                }
+            } else {
+                showNotification("Mahasiswa Tidak Ditemukan", `NIM/Nama "${query}" tidak terdaftar dalam sheet pendaftaran.`, "error");
+            }
+
+            document.getElementById('nimInput').value = '';
+        }
+
+        function toggleAttendance(nim) {
+            const item = mabaData.find(m => m.nim === nim);
+            if (item) {
+                item.hadir = !item.hadir;
+                item.waktuHadir = item.hadir ? new Date().toLocaleTimeString('id-ID', { hour12: false }) : '-';
+                saveAttendanceLogs();
+                showNotification(
+                    item.hadir ? "Presensi Dicatat" : "Presensi Dibatalkan",
+                    `Status ${item.nama} diubah menjadi ${item.hadir ? 'HADIR' : 'BELUM HADIR'}.`,
+                    item.hadir ? 'success' : 'info'
+                );
+            }
+        }
+
+        function updateStatsUI() {
+            const total = mabaData.length;
+            const hadir = mabaData.filter(m => m.hadir).length;
+            const belum = total - hadir;
+            const percent = total > 0 ? Math.round((hadir / total) * 100) : 0;
+
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statHadir').innerText = hadir;
+            document.getElementById('statBelum').innerText = belum;
+            document.getElementById('statPercent').innerText = `${percent}% Kehadiran`;
+
+            document.getElementById('progressBar').style.width = `${percent}%`;
+            document.getElementById('progressText').innerText = `${hadir}/${total}`;
+        }
+
+        function renderTableUI() {
+            filterTable();
+        }
+
+        function filterTable() {
+            const query = document.getElementById('searchTable').value.trim().toLowerCase();
+            const filter = document.getElementById('filterStatus').value;
+
+            const tbody = document.getElementById('tableBody');
+            const emptyState = document.getElementById('tableEmpty');
+            tbody.innerHTML = '';
+
+            let filtered = mabaData.filter(m => {
+                const matchQuery = m.nama.toLowerCase().includes(query) || m.nim.toLowerCase().includes(query);
+                let matchFilter = true;
+
+                if (filter === 'hadir') matchFilter = m.hadir;
+                if (filter === 'belum') matchFilter = !m.hadir;
+
+                return matchQuery && matchFilter;
+            });
+
+            filtered.sort((a, b) => a.nim.localeCompare(b.nim));
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+
+                filtered.forEach((m, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-700/40 transition duration-150 group";
+
+                    const statusBadge = m.hadir 
+                        ? `<span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-[10px]"></i> HADIR</span>`
+                        : `<span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30 inline-flex items-center gap-1.5"><i class="fa-solid fa-clock text-[10px]"></i> BELUM</span>`;
+
+                    const genderBadge = m.jenisKelamin === 'Laki-laki'
+                        ? `<span class="text-xs text-indigo-300"><i class="fa-solid fa-mars mr-1"></i> Laki-laki</span>`
+                        : `<span class="text-xs text-rose-300"><i class="fa-solid fa-venus mr-1"></i> Perempuan</span>`;
+
+                    const motorBadge = (m.bawaMotor === 'Ya' || m.bawaMotor === true)
+                        ? `<span class="px-2 py-0.5 rounded text-[11px] bg-blue-500/10 text-blue-400 border border-blue-500/20"><i class="fa-solid fa-motorcycle mr-1"></i> Ya</span>`
+                        : `<span class="px-2 py-0.5 rounded text-[11px] bg-slate-700 text-slate-400">Tidak</span>`;
+
+                    const actionBtn = m.hadir
+                        ? `<button onclick="toggleAttendance('${m.nim}')" class="px-3 py-1 bg-slate-700 hover:bg-rose-900/40 text-slate-300 hover:text-rose-400 border border-slate-600 hover:border-rose-500/40 text-xs font-medium rounded-lg transition">Batal</button>`
+                        : `<button onclick="toggleAttendance('${m.nim}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition shadow-md shadow-emerald-600/20 flex items-center gap-1 mx-auto"><i class="fa-solid fa-check"></i> Absen</button>`;
+
+                    tr.innerHTML = `
+                        <td class="px-5 py-3.5 text-center text-slate-500 font-mono text-xs">${idx + 1}</td>
+                        <td class="px-5 py-3.5 font-medium text-slate-100">${m.nama}</td>
+                        <td class="px-5 py-3.5 font-mono text-xs text-slate-400">${m.nim}</td>
+                        <td class="px-5 py-3.5">${genderBadge}</td>
+                        <td class="px-5 py-3.5">${motorBadge}</td>
+                        <td class="px-5 py-3.5 text-center">${statusBadge}</td>
+                        <td class="px-5 py-3.5 text-center font-mono text-xs ${m.hadir ? 'text-emerald-400 font-semibold' : 'text-slate-500'}">${m.waktuHadir}</td>
+                        <td class="px-5 py-3.5 text-center">${actionBtn}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        async function syncData(isSilent = false) {
+            const btn = document.getElementById('btnSync');
+            if (!isSilent && btn) {
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memuat...`;
+                btn.disabled = true;
+            }
+
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getStats`);
+                const data = await res.json();
+                
+                if (data && data.success && Array.isArray(data.data)) {
+                    mabaData = data.data.map((item, idx) => {
+                        const existingLog = attendanceMap[item.nim] || {};
+                        const isHadirSheet = (item.techMeet && String(item.techMeet).toLowerCase() === 'hadir') || 
+                                             (item.TechMeet && String(item.TechMeet).toLowerCase() === 'hadir');
+                        return {
+                            id: idx + 1,
+                            nim: String(item.nim).trim(),
+                            nama: String(item.nama).trim(),
+                            jenisKelamin: item.jenisKelamin || item.jk || item.gender || "Laki-laki",
+                            bawaMotor: item.bawaMotor || "Tidak",
+                            telepon: item.telepon || item.noHp || item.hp || item.wa || item.nomorTelepon || "-",
+                            hadir: existingLog.hadir !== undefined ? existingLog.hadir : isHadirSheet,
+                            waktuHadir: existingLog.waktuHadir || (isHadirSheet ? "Hadir" : "-")
+                        };
+                    });
+
+                    saveAttendanceLogs();
+                    if (!isSilent) {
+                        showNotification("Sinkronisasi Berhasil", `Berhasil mengambil ${mabaData.length} data peserta dari Spreadsheet.`, "success");
+                    }
+                } else {
+                    if (!isSilent) {
+                        showNotification("Gagal Mengambil Data", data.message || "Respon server tidak valid.", "warning");
+                    }
+                }
+            } catch (err) {
+                console.warn("Koneksi Apps Script terhambat/fallback ke data lokal:", err);
+                if (!isSilent) {
+                    showNotification("Gunakan Data Cache/Lokal", "Gagal menghubungi Apps Script. Menggunakan data tersimpan.", "info");
+                }
+            } finally {
+                if (!isSilent && btn) {
+                    btn.innerHTML = `<i class="fa-solid fa-rotate"></i> Sync Spreadsheet`;
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        function openConfigModal() {
+            document.getElementById('scriptUrlInput').value = SCRIPT_URL;
+            document.getElementById('configModal').classList.remove('hidden');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.add('hidden');
+        }
+
+        function saveScriptUrl() {
+            const input = document.getElementById('scriptUrlInput').value.trim();
+            if (input) {
+                SCRIPT_URL = input;
+                localStorage.setItem('techmeet_script_url', input);
+                closeConfigModal();
+                syncData();
+            }
+        }
+
+        function showNotification(title, message, type = 'success') {
+            const box = document.getElementById('statusAlert');
+            const icon = document.getElementById('statusIcon');
+            const titleEl = document.getElementById('statusTitle');
+            const descEl = document.getElementById('statusDesc');
+
+            box.classList.remove('hidden', 'bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400', 
+                               'bg-amber-500/10', 'border-amber-500/30', 'text-amber-400',
+                               'bg-rose-500/10', 'border-rose-500/30', 'text-rose-400',
+                               'bg-blue-500/10', 'border-blue-500/30', 'text-blue-400');
+
+            if (type === 'success') {
+                box.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400');
+                icon.className = 'fa-solid fa-circle-check text-2xl text-emerald-400';
+            } else if (type === 'warning') {
+                box.classList.add('bg-amber-500/10', 'border-amber-500/30', 'text-amber-400');
+                icon.className = 'fa-solid fa-triangle-exclamation text-2xl text-amber-400';
+            } else if (type === 'error') {
+                box.classList.add('bg-rose-500/10', 'border-rose-500/30', 'text-rose-400');
+                icon.className = 'fa-solid fa-circle-xmark text-2xl text-rose-400';
+            } else {
+                box.classList.add('bg-blue-500/10', 'border-blue-500/30', 'text-blue-400');
+                icon.className = 'fa-solid fa-circle-info text-2xl text-blue-400';
+            }
+
+            titleEl.innerText = title;
+            descEl.innerText = message;
+            box.classList.remove('hidden');
+
+            setTimeout(() => {
+                hideAlert();
+            }, 5000);
+        }
+
+        function hideAlert() {
+            document.getElementById('statusAlert').classList.add('hidden');
+        }
+
+        function exportCSV() {
+            let csv = "No,Nama,NIM,Jenis Kelamin,Bawa Motor,Status Kehadiran,Waktu Presensi\n";
+            mabaData.forEach((m, idx) => {
+                csv += `"${idx + 1}","${m.nama}","${m.nim}","${m.jenisKelamin}","${m.bawaMotor}","${m.hadir ? 'HADIR' : 'BELUM HADIR'}","${m.waktuHadir}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Presensi_TechMeet_Makrab_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStoredData();
+            updateStatsUI();
+            renderTableUI();
+            
+            syncData();
+
+            setInterval(() => {
+                syncData(true);
+            }, 10000);
+        });
+    </script>
+</body>
+</html>
